@@ -64,9 +64,18 @@ while (my $subdir = readdir($dh))
         open FF,$filepath or die "fichier non ouvrable";
         read FF,$txt,100000;
         close FF;
-        $txt=~s/[^A-Za-z0-9 ]//g;
-        #$txt=~s/\n/\\n/g;
-        #$txt=~s/"/\\"/g;
+        if ($txt=~/<div/)
+        {
+            # yahoo pseudo html to convert
+            open(FFF,"-|","/usr/bin/w3m","-dump","-T","text/html","$filepath") or die 'no w3m to use to convert html to txt';
+            read FFF,$txt,1000000;
+            close FFF;
+        }
+        #$txt=~s/[^A-Za-z0-9 ]//g;
+        $txt=~s/\n/\\n/g;
+        $txt=~s/"/\\"/g;
+        $txt=~s/\x09/\\t/g;
+        $txt=~s/[\x00-\x1F]//g;
         #$txt=~s/[^\x20-\x7E]//g;
         &new_note($file,$txt,$id);
     }
